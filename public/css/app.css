@@ -1,0 +1,105 @@
+/* Paleta de colores de la zapatería */
+:root {
+    --color-principal: #a86b32;
+    --color-principal-oscuro: #8a5627;
+    --color-principal-suave: #f3e6d9;
+    --color-fondo: #f8f6f3;
+    --color-texto: #343a40;
+}
+
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+}
+
+/* Barra de navegación */
+.navbar-zapateria {
+    background-color: var(--color-principal);
+}
+.navbar-zapateria .nav-link.active {
+    font-weight: 600;
+}
+
+/* Botones con el color principal */
+.btn-principal {
+    background-color: var(--color-principal);
+    border-color: var(--color-principal);
+    color: #fff;
+}
+.btn-principal:hover,
+.btn-principal:focus {
+    background-color: var(--color-principal-oscuro);
+    border-color: var(--color-principal-oscuro);
+    color: #fff;
+}
+.btn-outline-principal {
+    border-color: var(--color-principal);
+    color: var(--color-principal);
+}
+.btn-outline-principal:hover {
+    background-color: var(--color-principal);
+    color: #fff;
+}
+
+.text-principal { color: var(--color-principal) !important; }
+.bg-principal-suave { background-color: var(--color-principal-suave) !important; }
+
+/* Tarjetas */
+.card {
+    border: 0;
+    border-radius: .75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+    overflow: hidden;
+}
+
+/* Indicadores del catálogo */
+.indicador-icono {
+    width: 52px;
+    height: 52px;
+    border-radius: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Tabla */
+.table thead th {
+    background-color: var(--color-principal-suave);
+    color: var(--color-texto);
+    font-weight: 600;
+    font-size: .875rem;
+    white-space: nowrap;
+}
+
+.badge-categoria {
+    background-color: var(--color-principal-suave);
+    color: var(--color-principal-oscuro);
+    font-weight: 600;
+}
+
+/* Detalle */
+.detalle dt {
+    color: #6c757d;
+    font-weight: 500;
+}
+.detalle dt, .detalle dd {
+    padding: .5rem 0;
+    border-bottom: 1px solid #f1ede8;
+    margin-bottom: 0;
+}
+
+/* Enfoque de campos con el color principal */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-principal);
+    box-shadow: 0 0 0 .2rem rgba(168, 107, 50, .2);
+}
+
+/* Paginación */
+.pagination .page-link { color: var(--color-principal); }
+.pagination .page-item.active .page-link {
+    background-color: var(--color-principal);
+    border-color: var(--color-principal);
+    color: #fff;
+}
