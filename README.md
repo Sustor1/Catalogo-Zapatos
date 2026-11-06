@@ -25,7 +25,7 @@ No se usa Node.js, Vue ni React: los estilos y scripts propios están en `public
 
 ```bash
 # 1. Clonar el repositorio y entrar a la carpeta
-git clone <url-del-repositorio> CatalogoZapatos
+git clone https://github.com/Sustor1/Catalogo-Zapatos.git CatalogoZapatos
 cd CatalogoZapatos
 
 # 2. Instalar dependencias de PHP
@@ -49,7 +49,21 @@ DB_PASSWORD=
 
 ## Creación de la base de datos
 
-Con MySQL en ejecución, crea la base de datos desde la consola de MySQL o phpMyAdmin:
+Hay dos opciones; usa **solo una**.
+
+### Opción A: script SQL (base de datos, tabla y registros en un paso)
+
+El archivo [`database/sql/zapateria_db.sql`](database/sql/zapateria_db.sql) crea la base de datos `zapateria_db`, la tabla `zapatos` e inserta 10 zapatos de ejemplo.
+
+```bash
+C:\xampp\mysql\bin\mysql.exe -u root < database\sql\zapateria_db.sql
+```
+
+También puede importarse desde phpMyAdmin, en la pestaña **Importar**. Con esta opción no es necesario ejecutar las migraciones ni los seeders.
+
+### Opción B: migraciones y seeders de Laravel
+
+Con MySQL en ejecución, crea la base de datos vacía desde la consola de MySQL o phpMyAdmin:
 
 ```sql
 CREATE DATABASE zapateria_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -61,7 +75,7 @@ En XAMPP también puede hacerse desde la terminal:
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE zapateria_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-## Migraciones y seeders
+Después ejecuta las migraciones y los seeders:
 
 ```bash
 # Crea la tabla `zapatos`
@@ -74,7 +88,7 @@ php artisan db:seed
 php artisan migrate:fresh --seed
 ```
 
-### Estructura de la tabla `zapatos`
+## Estructura de la tabla `zapatos`
 
 | Campo | Tipo | Reglas |
 |---|---|---|
@@ -106,6 +120,7 @@ app/Http/Controllers/ZapatoController.php  Controlador CRUD + búsqueda, filtro 
 app/Http/Requests/ZapatoRequest.php      Reglas de validación y mensajes en español
 database/migrations/..._create_zapatos_table.php  Migración de la tabla
 database/seeders/ZapatoSeeder.php        Zapatos de ejemplo
+database/sql/zapateria_db.sql            Script SQL alternativo (base de datos + tabla + registros)
 routes/web.php                           Rutas (Route::resource)
 bootstrap/app.php                        Manejo de zapatos inexistentes (redirige con mensaje)
 resources/views/layouts/app.blade.php    Plantilla general (navbar, alertas)
@@ -115,26 +130,31 @@ public/css/app.css, public/js/app.js     Estilos y JavaScript (confirmación y v
 
 ## Decisiones
 
-- Se usó un único controlador de recursos (`Route::resource`) porque cubre exactamente las 7 acciones del CRUD con rutas y nombres estándar de Laravel.
-- La validación está en un Form Request (`ZapatoRequest`) que se reutiliza al registrar y al editar; el navegador valida también con atributos HTML5 (`required`, `min`, `max`, `step`), pero Laravel es la validación obligatoria.
-- Los formularios de registro y edición comparten la vista parcial `_form.blade.php`, que usa `old()` para conservar los datos si hay errores.
-- Si se consulta, edita o elimina un id inexistente, se regresa al catálogo con un mensaje en lugar de mostrar un error 404.
-- Bootstrap se carga por CDN y las sesiones se guardan en archivos, para que la base de datos solo contenga la tabla `zapatos` y el proyecto no dependa de Node.js.
+1. Seguí el MVC estándar de Laravel con un solo modelo (`Zapato`) y un controlador de recursos (`Route::resource`), porque cubre las 7 acciones del CRUD con rutas convencionales y fáciles de explicar.
+2. Puse la validación en un Form Request (`ZapatoRequest`), compartido por registrar y editar, para no repetir reglas en el controlador; el navegador valida de forma complementaria con atributos HTML5.
+3. Registrar y editar comparten la vista parcial `_form.blade.php`, que usa `old()` para conservar lo que escribió el usuario cuando hay errores.
+4. Si se pide un zapato inexistente, se vuelve al catálogo con un mensaje en lugar de un error 404; esto se resuelve en un solo lugar (`bootstrap/app.php`).
+5. Para no complicar el proyecto, Bootstrap se carga por CDN (sin Node.js) y las sesiones se guardan en archivos, así la base de datos solo contiene la tabla `zapatos`.
 
 ## Uso de IA y documentación
 
-Este proyecto se desarrolló con apoyo de **Claude Code** (asistente de programación de Anthropic), usado para:
+### Herramientas
+
+- **Claude Code** (asistente de programación de Anthropic, en Visual Studio Code): generación de código, ejecución de comandos y pruebas.
+- **Documentación oficial:** [Laravel 12](https://laravel.com/docs/12.x) (validación, Form Requests, Eloquent, Blade, rutas de recursos, manejo de excepciones) y [Bootstrap 5.3](https://getbootstrap.com/docs/5.3/) (componentes, validación de formularios e iconos).
+
+### Para qué partes se usó la IA
 
 - Verificar el entorno (PHP, Composer, MySQL), crear el proyecto Laravel 12 y configurar `.env` y la base de datos.
-- Generar la migración, el modelo, el controlador, el Form Request, el seeder, las rutas y las vistas Blade.
+- Generar la migración, el modelo, el controlador, el Form Request, el seeder, el script SQL, las rutas y las vistas Blade.
 - Diseñar la interfaz con Bootstrap 5 siguiendo la paleta de colores indicada.
-- Probar de punta a punta el CRUD, las validaciones, la protección CSRF y el manejo de registros inexistentes contra el servidor real, y comprobar los datos en MySQL.
-- Redactar este README.
+- Probar de punta a punta, contra el servidor real, el CRUD, las validaciones, la protección CSRF y los registros inexistentes, comprobando los datos en MySQL.
+- Redactar este README y subir el proyecto a GitHub.
 
-Sugerencias que se tuvieron que corregir durante el desarrollo:
+### Qué se tuvo que corregir
 
-- **Mensaje de longitud máxima en inglés:** el mensaje personalizado se registró como `max.string`, pero en un Form Request esa clave no se aplica y Laravel mostraba "The marca field must not be greater than 50 characters". Las pruebas lo detectaron y se cambió la clave a `max`.
-- **Nombre de la tabla:** Laravel pluraliza los modelos en inglés, así que se definió `protected $table = 'zapatos'` en el modelo para no depender de esa regla.
-- **Estructura del proyecto:** se quitaron las migraciones por defecto de Laravel (usuarios, caché y colas) y los archivos de Vite/Node, que el proyecto no necesita, para que la base de datos y el código queden enfocados en el catálogo.
-
-Documentación consultada: [Laravel 12](https://laravel.com/docs/12.x) (validación, Eloquent, Blade, rutas de recursos) y [Bootstrap 5](https://getbootstrap.com/docs/5.3/).
+- **Mensaje de error en inglés:** el mensaje de longitud máxima se definió con la clave `max.string`, que Laravel no aplica en un Form Request, y aparecía "The marca field must not be greater than 50 characters". Las pruebas lo detectaron y se cambió la clave a `max`.
+- **Acentos dañados en el script SQL:** al importar el script desde la consola de Windows, "Café" se guardaba con caracteres corruptos. Se agregó `SET NAMES utf8mb4;` al inicio y se comprobó en una base de datos de prueba.
+- **Nombre de la tabla:** Laravel pluraliza los modelos con reglas del inglés, así que se definió `protected $table = 'zapatos'` en el modelo para no depender de ellas.
+- **Archivos innecesarios:** Laravel crea por defecto migraciones de usuarios, caché y colas, y archivos de Vite/Node. Se eliminaron porque el proyecto no los usa.
+- **Primer requerimiento ajustado:** la primera versión de la especificación tenía otras categorías (incluía "Sandalia") y no tenía campo de color. El desarrollo se detuvo y se rehizo con la tabla definitiva, que tiene los tipos y reglas exactos de la prueba.
